@@ -4,6 +4,10 @@ function TradingViewWidget() {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const containerEl = container.current;
+    if (!containerEl) return;
+
+    containerEl.innerHTML = '';
     if (!container.current) return;
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
@@ -33,6 +37,11 @@ function TradingViewWidget() {
       "studies": [],
       "autosize": true
     }`;
+    containerEl.appendChild(script);
+
+    return () => {
+      containerEl.innerHTML = '';
+    };
     container.current.appendChild(script);
   }, []);
 
