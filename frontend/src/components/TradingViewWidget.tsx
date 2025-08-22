@@ -7,12 +7,11 @@ function TradingViewWidget() {
     const containerEl = container.current;
     if (!containerEl) return;
 
-    containerEl.innerHTML = '';
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.src =
+      'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.onerror = (e) => {
       console.error('TradingView widget failed to load', e);
     };
@@ -41,10 +40,6 @@ function TradingViewWidget() {
       "autosize": true
     }`;
     containerEl.appendChild(script);
-
-    return () => {
-      containerEl.innerHTML = '';
-    };
   }, []);
 
   useEffect(() => {
