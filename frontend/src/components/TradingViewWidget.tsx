@@ -60,13 +60,6 @@ function TradingViewWidget() {
     return () => {
       window.removeEventListener('error', handleWindowError, true);
     };
-      }
-    };
-
-    window.addEventListener('error', handleWindowError);
-    return () => {
-      window.removeEventListener('error', handleWindowError);
-    };
 
   }, []);
 
