@@ -52,6 +52,14 @@ function TradingViewWidget() {
       if (event.message === 'Script error.' && event.filename === '') {
         console.error('Cross-origin script error', event);
         event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+
+    window.addEventListener('error', handleWindowError, true);
+    return () => {
+      window.removeEventListener('error', handleWindowError, true);
+    };
       }
     };
 
