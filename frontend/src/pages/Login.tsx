@@ -15,6 +15,9 @@ const Login: React.FC = () => {
     if (!email) newErrors.email = 'Informe seu email.';
     if (!password) newErrors.password = 'Informe sua senha.';
     setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      window.location.href = '/dashboard';
+    }
   };
 
   return (
