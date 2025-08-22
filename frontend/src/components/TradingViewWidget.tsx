@@ -8,6 +8,7 @@ function TradingViewWidget() {
     if (!containerEl) return;
 
     containerEl.innerHTML = '';
+    if (!container.current) return;
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.type = 'text/javascript';
@@ -41,6 +42,7 @@ function TradingViewWidget() {
     return () => {
       containerEl.innerHTML = '';
     };
+    container.current.appendChild(script);
   }, []);
 
   return (
