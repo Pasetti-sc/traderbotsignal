@@ -59,6 +59,7 @@ function TradingViewWidget() {
     return () => {
       window.removeEventListener('error', handleWindowError);
     };
+
   }, []);
 
   return (
