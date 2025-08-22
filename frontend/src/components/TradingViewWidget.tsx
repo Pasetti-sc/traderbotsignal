@@ -8,11 +8,14 @@ function TradingViewWidget() {
     if (!containerEl) return;
 
     containerEl.innerHTML = '';
-    if (!container.current) return;
     const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.type = 'text/javascript';
     script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.onerror = (e) => {
+      console.error('TradingView widget failed to load', e);
+    };
     script.innerHTML = `{
       "allow_symbol_change": true,
       "calendar": false,
@@ -42,7 +45,21 @@ function TradingViewWidget() {
     return () => {
       containerEl.innerHTML = '';
     };
-    container.current.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    const handleWindowError = (event: ErrorEvent) => {
+      if (event.message === 'Script error.' && event.filename === '') {
+        console.error('Cross-origin script error', event);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+
+    window.addEventListener('error', handleWindowError, true);
+    return () => {
+      window.removeEventListener('error', handleWindowError, true);
+    };
   }, []);
 
   return (
