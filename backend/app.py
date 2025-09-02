@@ -3,6 +3,7 @@ import hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 import mysql.connector
 from api.iqconnect import connect_iq
+from config import DB_CONFIG
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app = Flask(
@@ -14,8 +15,8 @@ app.secret_key = 'secret_key'
 
 
 def get_db():
+    return mysql.connector.connect(**DB_CONFIG)
     return mysql.connector.connect(host='localhost', user='root', password='', database='traderbot')
-
 
 @app.route('/')
 def index():
