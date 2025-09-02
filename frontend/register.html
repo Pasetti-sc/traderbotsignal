@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <title>Registrar</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="container">
     <h2>Criar conta</h2>
     <form method="POST" action="/register">
+    <form method="POST">
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Senha" required>
       <input type="email" name="iq_email" placeholder="IQ Option Email" required>
@@ -16,6 +18,7 @@
       <button type="submit">Registrar</button>
     </form>
     <p><a href="login.html">Login</a></p>
+    <p><a href="/login">Login</a></p>
   </div>
 </body>
 </html>
