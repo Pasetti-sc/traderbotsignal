@@ -10,6 +10,7 @@ cur.execute(
     'password VARCHAR(32),'
     'iq_email VARCHAR(255),'
     'iq_password VARCHAR(255)'
+    'password VARCHAR(32)'
     ')'
 )
 cur.close()
