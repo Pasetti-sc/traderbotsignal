@@ -9,14 +9,26 @@ const Login: React.FC = () => {
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { email?: string; password?: string } = {};
     if (!email) newErrors.email = 'Informe seu email.';
     if (!password) newErrors.password = 'Informe sua senha.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      window.location.href = '/dashboard';
+      try {
+        const response = await fetch(
+          `http://localhost:5000/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        );
+        const data = await response.json();
+        if (data.message) {
+          window.location.href = '/dashboard';
+        } else {
+          setErrors({ password: data.error || 'Falha no login.' });
+        }
+      } catch (err) {
+        setErrors({ password: 'Erro de conexão com o servidor.' });
+      }
     }
   };
 
