@@ -3,9 +3,12 @@ CREATE USER IF NOT EXISTS 'u411357610_trader'@'localhost' IDENTIFIED BY '0207199
 GRANT ALL PRIVILEGES ON u411357610_trader.* TO 'u411357610_trader'@'localhost';
 FLUSH PRIVILEGES;
 USE u411357610_trader;
+CREATE DATABASE IF NOT EXISTS traderbot;
+USE traderbot;
 CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) PRIMARY KEY,
   password VARCHAR(32),
   iq_email VARCHAR(255),
   iq_password VARCHAR(255)
+  password VARCHAR(32)
 );

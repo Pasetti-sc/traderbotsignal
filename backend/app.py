@@ -16,7 +16,7 @@ app.secret_key = 'secret_key'
 
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
-
+    return mysql.connector.connect(host='localhost', user='root', password='', database='traderbot')
 
 @app.route('/')
 def index():
@@ -36,6 +36,9 @@ def register():
             'INSERT INTO users (email, password, iq_email, iq_password) VALUES (%s, %s, %s, %s)',
             (email, password, iq_email, iq_password),
         )
+        db = get_db()
+        cur = db.cursor()
+        cur.execute('INSERT INTO users (email, password) VALUES (%s, %s)', (email, password))
         db.commit()
         cur.close()
         db.close()
@@ -52,6 +55,7 @@ def login():
         db = get_db()
         cur = db.cursor()
         cur.execute('SELECT password, iq_email, iq_password FROM users WHERE email=%s', (email,))
+        cur.execute('SELECT password FROM users WHERE email=%s', (email,))
         result = cur.fetchone()
         cur.close()
         db.close()
@@ -60,6 +64,7 @@ def login():
             iq_email = result[1]
             iq_password = result[2]
             iq = connect_iq(iq_email, iq_password)
+            iq = connect_iq(email, raw_password)
             if iq:
                 return redirect(url_for('panel'))
             return 'Falha na conexão com IQ Option', 401
