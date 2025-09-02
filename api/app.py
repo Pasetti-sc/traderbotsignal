@@ -1,5 +1,6 @@
 import os
 import hashlib
+import bcrypt
 from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
@@ -25,6 +26,34 @@ def login():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, password FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()
+
+    if user:
+        stored = user["password"]
+        password_bytes = password.encode("utf-8")
+
+        if stored.startswith("$2b$"):
+            if bcrypt.checkpw(password_bytes, stored.encode("utf-8")):
+                cursor.close()
+                conn.close()
+                return jsonify({"message": "login successful"})
+        else:
+            legacy_hash = hashlib.md5(password_bytes).hexdigest()
+            if legacy_hash == stored:
+                new_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
+                cursor.execute(
+                    "UPDATE users SET password=%s WHERE id=%s",
+                    (new_hash, user["id"]),
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return jsonify({"message": "login successful"})
+
+    cursor.close()
+    conn.close()
+    return jsonify({"error": "invalid credentials"}), 401
     cursor.execute(
         "SELECT id FROM users WHERE email=%s AND password=%s",
         (email, password)
@@ -36,8 +65,6 @@ def login():
     if user:
         return jsonify({'message': 'login successful'})
     return jsonify({'error': 'invalid credentials'}), 401
-
-
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
@@ -48,6 +75,11 @@ def register():
 
     conn = get_db_connection()
     cursor = conn.cursor()
+    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    try:
+        cursor.execute(
+            "INSERT INTO users (email, password) VALUES (%s, %s)",
+            (email, hashed),
     try:
         cursor.execute(
             "INSERT INTO users (email, password) VALUES (%s, %s)",
@@ -58,8 +90,8 @@ def register():
         conn.rollback()
         cursor.close()
         conn.close()
+        return jsonify({"error": str(exc)}), 400
         return jsonify({'error': str(exc)}), 400
-
     cursor.close()
     conn.close()
     return jsonify({'message': 'user created'}), 201

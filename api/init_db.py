@@ -37,6 +37,27 @@ def create_users_table():
     connection.close()
 
 
+def force_password_reset_for_legacy_hashes():
+    connection = mysql.connector.connect(
+        host=os.getenv('DB_HOST', 'localhost'),
+        user=os.getenv('DB_USER', 'root'),
+        password=os.getenv('DB_PASSWORD', ''),
+        database=os.getenv('DB_NAME', 'traderbot')
+    )
+    cursor = connection.cursor()
+    cursor.execute(
+        "UPDATE users SET password='' WHERE password NOT LIKE '$2b$%'"
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
+if __name__ == '__main__':
+    create_database()
+    create_users_table()
+    force_password_reset_for_legacy_hashes()
+=======
 if __name__ == '__main__':
     create_database()
     create_users_table()
