@@ -17,7 +17,6 @@ app.secret_key = 'secret_key'
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
     return mysql.connector.connect(host='localhost', user='root', password='', database='traderbot')
-
 @app.route('/')
 def index():
     return send_file(os.path.join(BASE_DIR, 'index.html'))
