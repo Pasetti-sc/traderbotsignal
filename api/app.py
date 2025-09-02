@@ -1,6 +1,5 @@
 import os
 import hashlib
-
 import bcrypt
 from flask import Flask, request, jsonify
 import mysql.connector
@@ -55,8 +54,17 @@ def login():
     cursor.close()
     conn.close()
     return jsonify({"error": "invalid credentials"}), 401
+    cursor.execute(
+        "SELECT id FROM users WHERE email=%s AND password=%s",
+        (email, password)
+    )
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
 
-
+    if user:
+        return jsonify({'message': 'login successful'})
+    return jsonify({'error': 'invalid credentials'}), 401
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
@@ -72,6 +80,10 @@ def register():
         cursor.execute(
             "INSERT INTO users (email, password) VALUES (%s, %s)",
             (email, hashed),
+    try:
+        cursor.execute(
+            "INSERT INTO users (email, password) VALUES (%s, %s)",
+            (email, password)
         )
         conn.commit()
     except Error as exc:
@@ -79,7 +91,7 @@ def register():
         cursor.close()
         conn.close()
         return jsonify({"error": str(exc)}), 400
-
+        return jsonify({'error': str(exc)}), 400
     cursor.close()
     conn.close()
     return jsonify({'message': 'user created'}), 201

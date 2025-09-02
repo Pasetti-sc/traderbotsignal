@@ -57,4 +57,8 @@ if __name__ == '__main__':
     create_database()
     create_users_table()
     force_password_reset_for_legacy_hashes()
+=======
+if __name__ == '__main__':
+    create_database()
+    create_users_table()
     print('Database and users table created')
