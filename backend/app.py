@@ -27,6 +27,14 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = hashlib.md5(request.form['password'].encode()).hexdigest()
+        iq_email = request.form['iq_email']
+        iq_password = request.form['iq_password']
+        db = get_db()
+        cur = db.cursor()
+        cur.execute(
+            'INSERT INTO users (email, password, iq_email, iq_password) VALUES (%s, %s, %s, %s)',
+            (email, password, iq_email, iq_password),
+        )
         db = get_db()
         cur = db.cursor()
         cur.execute('INSERT INTO users (email, password) VALUES (%s, %s)', (email, password))
@@ -45,12 +53,16 @@ def login():
         password = hashlib.md5(raw_password.encode()).hexdigest()
         db = get_db()
         cur = db.cursor()
+        cur.execute('SELECT password, iq_email, iq_password FROM users WHERE email=%s', (email,))
         cur.execute('SELECT password FROM users WHERE email=%s', (email,))
         result = cur.fetchone()
         cur.close()
         db.close()
         if result and result[0] == password:
             session['user'] = email
+            iq_email = result[1]
+            iq_password = result[2]
+            iq = connect_iq(iq_email, iq_password)
             iq = connect_iq(email, raw_password)
             if iq:
                 return redirect(url_for('panel'))
