@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   password CHAR(32) NOT NULL,
   iq_email VARCHAR(255) NOT NULL,
   iq_password VARCHAR(255) NOT NULL
+);
 CREATE DATABASE IF NOT EXISTS traderbot;
 USE traderbot;
 CREATE TABLE IF NOT EXISTS users (

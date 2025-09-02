@@ -23,6 +23,7 @@ def index():
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@app.route('/register.html', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form['email']
@@ -46,6 +47,8 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+
+@app.route('/login.html', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -72,6 +75,7 @@ def login():
 
 
 @app.route('/panel')
+@app.route('/panel.html')
 def panel():
     if 'user' not in session:
         return redirect(url_for('login'))

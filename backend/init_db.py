@@ -1,6 +1,5 @@
 import mysql.connector
 from config import DB_CONFIG
-
 db = mysql.connector.connect(
     host=DB_CONFIG["host"], user=DB_CONFIG["user"], password=DB_CONFIG["password"]
 )
@@ -21,7 +20,6 @@ cur.execute(
       iq_password VARCHAR(255)
     )
     """
-
 db = mysql.connector.connect(host='localhost', user='root', password='')
 cur = db.cursor()
 cur.execute('CREATE DATABASE IF NOT EXISTS traderbot')
