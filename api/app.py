@@ -1,7 +1,9 @@
 import os
+import hashlib
 from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
+from iqoptionapi.stable_api import IQ_Option
 
 app = Flask(__name__)
 
@@ -15,25 +17,36 @@ def get_db_connection():
     )
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def login():
-    email = request.args.get('email')
-    password = request.args.get('password')
+    data = request.get_json() or {}
+    email = data.get('email')
+    password = data.get('password')
     if not email or not password:
         return jsonify({'error': 'missing credentials'}), 400
+
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "SELECT id FROM users WHERE email=%s AND password=%s",
-        (email, password)
+        (email, hashed_password)
     )
     user = cursor.fetchone()
     cursor.close()
     conn.close()
 
     if user:
-        return jsonify({'message': 'login successful'})
+        iq_client = IQ_Option(email, password)
+        try:
+            iq_client.connect()
+            if iq_client.check_connect():
+                return jsonify({'message': 'login successful'})
+            return jsonify({'error': 'iq option connection failed'}), 502
+        except Exception as exc:
+            return jsonify({'error': str(exc)}), 502
+
     return jsonify({'error': 'invalid credentials'}), 401
 
 
@@ -45,12 +58,14 @@ def register():
     if not email or not password:
         return jsonify({'error': 'missing data'}), 400
 
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
             "INSERT INTO users (email, password) VALUES (%s, %s)",
-            (email, password)
+            (email, hashed_password)
         )
         conn.commit()
     except Error as exc:

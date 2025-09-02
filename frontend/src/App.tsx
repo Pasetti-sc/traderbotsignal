@@ -10,6 +10,7 @@ function App() {
       return <Cadastro />;
     case '/dashboard':
       return <Dashboard />;
+    case '/':
     case '/login':
     default:
       return <Login />;

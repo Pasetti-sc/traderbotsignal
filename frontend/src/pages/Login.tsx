@@ -9,14 +9,28 @@ const Login: React.FC = () => {
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { email?: string; password?: string } = {};
     if (!email) newErrors.email = 'Informe seu email.';
     if (!password) newErrors.password = 'Informe sua senha.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      window.location.href = '/dashboard';
+      try {
+        const response = await fetch('http://localhost:5000/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        if (data.message) {
+          window.location.href = '/dashboard';
+        } else {
+          setErrors({ password: data.error || 'Falha no login.' });
+        }
+      } catch (err) {
+        setErrors({ password: 'Erro de conexão com o servidor.' });
+      }
     }
   };
 
@@ -64,9 +78,6 @@ const Login: React.FC = () => {
             <a href="/cadastro" className="font-medium text-primary">
               Cadastre-se
             </a>
-          </div>
-          <div className="text-center text-xs text-muted-foreground">
-            Integração com API virá aqui
           </div>
         </form>
       </AuthCard>

@@ -11,7 +11,7 @@ const Cadastro: React.FC = () => {
   const [accept, setAccept] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { name?: string; email?: string; password?: string; confirm?: string } = {};
     if (!name) newErrors.name = 'Informe seu nome.';
@@ -19,6 +19,23 @@ const Cadastro: React.FC = () => {
     if (!password) newErrors.password = 'Informe sua senha.';
     if (confirm !== password) newErrors.confirm = 'As senhas não correspondem.';
     setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const response = await fetch('http://localhost:5000/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        if (data.message) {
+          window.location.href = '/login';
+        } else {
+          setErrors({ email: data.error || 'Falha no cadastro.' });
+        }
+      } catch (err) {
+        setErrors({ email: 'Erro de conexão com o servidor.' });
+      }
+    }
   };
 
   return (
@@ -81,9 +98,6 @@ const Cadastro: React.FC = () => {
             <a href="/login" className="font-medium text-primary">
               Entrar
             </a>
-          </div>
-          <div className="text-center text-xs text-muted-foreground">
-            Integração com API virá aqui
           </div>
         </form>
       </AuthCard>
